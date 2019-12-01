@@ -2,6 +2,7 @@ import dataclasses
 import inspect
 import types
 import os
+import sys
 import glob
 import importlib.util
 
@@ -168,12 +169,14 @@ def create_class_diagram(classes_list):
     return g
 
 
-def create_class_diagram_from_source(target: str):
+def create_class_diagram_from_source(source: str):
     classes_list = []
 
-    if not os.path.exists(target):
-        raise Exception('Path "{}" doesn\'t  exist.'.format(target))
-    if os.path.isdir(target):
-        for f in _search_modules(target):
+    if not os.path.exists(source):
+        raise Exception('Path "{}" doesn\'t  exist.'.format(source))
+    if os.path.isdir(source):
+        sys.path.insert(0, source)
+
+        for f in _search_modules(source):
             classes_list.extend(_get_classes_from_module(f))
     return create_class_diagram(classes_list)
