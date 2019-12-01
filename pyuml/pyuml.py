@@ -23,6 +23,12 @@ def main():
         type=str,
         help='Specify the source directory/file',
     )
+    p.add_argument(
+        '--verbose',
+        dest='verbose',
+        action='store_true',
+        help='Print internal messages',
+    )
     ns = p.parse_args()
 
     if ns.is_class_diagram:
@@ -35,7 +41,10 @@ def main():
                 '`source` parameter is required to generate the class diagram.'
             )
 
-        g = class_graph.create_class_diagram_from_source(ns.source)
+        g = class_graph.create_class_diagram_from_source(
+            ns.source,
+            verbose=ns.verbose
+        )
         g.format = 'png'
         g.render(ns.target)
 

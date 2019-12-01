@@ -154,7 +154,7 @@ def _get_classes_from_module(module_path: str) -> list:
     return classes_list
 
 
-def create_class_diagram(classes_list):
+def create_class_diagram(classes_list: list, verbose: bool = False):
     g = gv.Digraph(comment='Graph')
     g.attr('node', shape='none', rankdir='BT')
 
@@ -165,11 +165,14 @@ def create_class_diagram(classes_list):
         for b in _get_base_classes(c):
             edges.append((_get_fullname(b), _get_fullname(c)))
 
+        if verbose:
+            print('[II]', _get_fullname(c), '- included.')
+
     g.edges(edges)
     return g
 
 
-def create_class_diagram_from_source(source: str):
+def create_class_diagram_from_source(source: str, verbose: bool=False):
     classes_list = []
 
     if not os.path.exists(source):
@@ -179,4 +182,4 @@ def create_class_diagram_from_source(source: str):
 
         for f in _search_modules(source):
             classes_list.extend(_get_classes_from_module(f))
-    return create_class_diagram(classes_list)
+    return create_class_diagram(classes_list, verbose=verbose)
