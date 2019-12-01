@@ -35,12 +35,16 @@ def _get_base_classes(klass):
     ]
 
 
+def _get_annotations(klass):
+    return getattr(klass, '__annotations__', {})
+
+
 def _get_classicclass_structure(klass):
     _methods = _get_methods(klass)
 
     result = {
         'fields': {
-            k: klass.__annotations__.get(k, object).__name__
+            k: _get_annotations(klass).get(k, object).__name__
             for k in klass.__dict__.keys()
             if not k.startswith('__') and k not in _methods
         },
