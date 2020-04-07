@@ -31,6 +31,14 @@ Features
 
 * TODO
 
+Class Diagram
+-------------
+
+.. code:
+
+   pyuml --class-diagram --source $(pwd)/streamserver/daq --target $(pwd)/docs/uml/class_graph --verbose
+
+
 Credits
 -------
 
