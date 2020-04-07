@@ -1,5 +1,6 @@
 """Main module template with example functions."""
 import argparse
+
 from pyuml import class_graph
 
 
@@ -42,11 +43,11 @@ def main():
             )
 
         g = class_graph.create_class_diagram_from_source(
-            ns.source,
-            verbose=ns.verbose
+            ns.source, verbose=ns.verbose
         )
         g.format = 'png'
         g.render(ns.target)
+
 
 if __name__ == '__main__':
     main()

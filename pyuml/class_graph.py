@@ -1,12 +1,13 @@
 import dataclasses
-import inspect
-import types
-import os
-import sys
 import glob
 import importlib.util
+import inspect
+import os
+import sys
+import types
 
 import graphviz as gv
+
 
 def _get_fullname(entity):
     return '{}.{}'.format(entity.__module__, entity.__name__)
@@ -14,23 +15,25 @@ def _get_fullname(entity):
 
 def _get_methods(entity) -> list:
     return [
-        k for k, v in entity.__dict__.items()
+        k
+        for k, v in entity.__dict__.items()
         if not k.startswith('__') and isinstance(v, types.FunctionType)
     ]
+
 
 def _get_dataclass_structure(klass):
     result = {'fields': {}, 'methods': _get_methods(klass)}
 
-    result['fields'].update({
-        k: v.type.__name__
-        for k, v in klass.__dataclass_fields__.items()
-    })
+    result['fields'].update(
+        {k: v.type.__name__ for k, v in klass.__dataclass_fields__.items()}
+    )
     return result
 
 
 def _get_base_classes(klass):
     return [
-        c for c in klass.__mro__
+        c
+        for c in klass.__mro__
         if c.__name__ != 'object' and c.__name__ != klass.__name__
     ]
 
@@ -48,7 +51,7 @@ def _get_classicclass_structure(klass):
             for k in klass.__dict__.keys()
             if not k.startswith('__') and k not in _methods
         },
-        'methods': _methods
+        'methods': _methods,
     }
     return result
 
@@ -81,39 +84,40 @@ def _get_entity_class_html(entity):
       </TR>
     </TABLE>>'''
 
-    class_name_template = '<BR ALIGN="LEFT" />  <I>{}.{} {}</I> <BR ALIGN="LEFT" />'
+    class_name_template = (
+        '<BR ALIGN="LEFT" />  <I>{}.{} {}</I> <BR ALIGN="LEFT" />'
+    )
     row_key_value_template = '<TR><TD>{}: {}</TD></TR>'
     row_key_template = '<TR><TD>{}</TD></TR>'
 
     empty_row = '<TR><TD></TD></TR>'
-    base_classes = ', '.join([
-        _get_fullname(c) for c in _get_base_classes(entity)
-    ])
+    base_classes = ', '.join(
+        [_get_fullname(c) for c in _get_base_classes(entity)]
+    )
 
     if base_classes != '':
         base_classes = '({})'.format(base_classes)
-
 
     class_structure = _get_class_structure(entity)
 
     class_name = class_name_template.format(
         entity.__module__, entity.__qualname__, base_classes
     )
-    attributes = ''.join([
-        row_key_value_template.format(
-            k, v
-        ) for k, v in class_structure['fields'].items()
-    ])
+    attributes = ''.join(
+        [
+            row_key_value_template.format(k, v)
+            for k, v in class_structure['fields'].items()
+        ]
+    )
 
-    methods = ''.join([
-        row_key_template.format(k)
-        for k in class_structure['methods']
-    ])
+    methods = ''.join(
+        [row_key_template.format(k) for k in class_structure['methods']]
+    )
 
     return class_template.format(
         class_name,
         attributes if attributes else empty_row,
-        methods if methods else empty_row
+        methods if methods else empty_row,
     )
 
 
@@ -136,15 +140,14 @@ def _extract_filename(filename: str) -> str:
 
 def _get_classes_from_module(module_path: str) -> list:
     spec = importlib.util.spec_from_file_location(
-        _extract_filename(module_path),
-        module_path
+        _extract_filename(module_path), module_path
     )
     module = importlib.util.module_from_spec(spec)
 
     classes_list = []
 
     try:
-        spec.loader.exec_module(module)
+        spec.loader.exec_module(module)  # type: ignore
         for o in module.__dir__():
             if o.startswith('__'):
                 continue
@@ -176,7 +179,7 @@ def create_class_diagram(classes_list: list, verbose: bool = False):
     return g
 
 
-def create_class_diagram_from_source(source: str, verbose: bool=False):
+def create_class_diagram_from_source(source: str, verbose: bool = False):
     classes_list = []
 
     if not os.path.exists(source):

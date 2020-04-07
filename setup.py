@@ -3,7 +3,7 @@
 
 """The setup script."""
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -13,9 +13,13 @@ with open('HISTORY.rst') as history_file:
 
 requirements = []
 
-setup_requirements = ['pytest-runner', ]
+setup_requirements = [
+    'pytest-runner',
+]
 
-test_requirements = ['pytest', ]
+test_requirements = [
+    'pytest',
+]
 
 setup(
     author="Ivan Ogasawara",
@@ -47,7 +51,5 @@ setup(
     url='https://github.com/xmnlab/pyuml',
     version='0.1.0',
     zip_safe=False,
-    entry_points={
-        'console_scripts': ['pyuml = pyuml.pyuml:main']
-    }
+    entry_points={'console_scripts': ['pyuml = pyuml.pyuml:main']},
 )
