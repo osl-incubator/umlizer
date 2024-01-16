@@ -6,6 +6,8 @@ import os
 import sys
 import types
 
+from pathlib import Path
+
 import graphviz as gv
 
 
@@ -64,7 +66,7 @@ def _get_class_structure(klass):
 
 
 def _get_entity_class_html(entity):
-    class_template = '''<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="1" CELLPADDING="1">
+    class_template = """<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="1" CELLPADDING="1">
       <TR>
         <TD>{}</TD>
       </TR>
@@ -82,7 +84,7 @@ def _get_entity_class_html(entity):
           </TABLE>
         </TD>
       </TR>
-    </TABLE>>'''
+    </TABLE>>"""
 
     class_name_template = (
         '<BR ALIGN="LEFT" />  <I>{}.{} {}</I> <BR ALIGN="LEFT" />'
@@ -179,14 +181,16 @@ def create_class_diagram(classes_list: list, verbose: bool = False):
     return g
 
 
-def create_class_diagram_from_source(source: str, verbose: bool = False):
+def create_class_diagram_from_source(source: Path, verbose: bool = False):
     classes_list = []
 
-    if not os.path.exists(source):
-        raise Exception('Path "{}" doesn\'t  exist.'.format(source))
-    if os.path.isdir(source):
-        sys.path.insert(0, source)
+    path_str = str(source)
 
-        for f in _search_modules(source):
+    if not os.path.exists(path_str):
+        raise Exception(f'Path "{path_str}" doesn\'t  exist.')
+    if os.path.isdir(path_str):
+        sys.path.insert(0, path_str)
+
+        for f in _search_modules(path_str):
             classes_list.extend(_get_classes_from_module(f))
     return create_class_diagram(classes_list, verbose=verbose)

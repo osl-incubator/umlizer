@@ -1,0 +1,82 @@
+// Graph
+digraph {
+	node [rankdir=BT shape=record]
+	"pathlib.Path" [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="1" CELLPADDING="1">
+      <TR>
+        <TD><BR ALIGN="LEFT" />  <I>pathlib.Path (pathlib.PurePath)</I> <BR ALIGN="LEFT" /></TD>
+      </TR>
+      <TR>
+        <TD>
+          <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+          <TR><TD>cwd: object</TD></TR><TR><TD>home: object</TD></TR>
+          </TABLE>
+        </TD>
+      </TR>
+      <TR>
+        <TD>
+          <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+          <TR><TD>stat</TD></TR><TR><TD>lstat</TD></TR><TR><TD>exists</TD></TR><TR><TD>is_dir</TD></TR><TR><TD>is_file</TD></TR><TR><TD>is_mount</TD></TR><TR><TD>is_symlink</TD></TR><TR><TD>is_junction</TD></TR><TR><TD>is_block_device</TD></TR><TR><TD>is_char_device</TD></TR><TR><TD>is_fifo</TD></TR><TR><TD>is_socket</TD></TR><TR><TD>samefile</TD></TR><TR><TD>open</TD></TR><TR><TD>read_bytes</TD></TR><TR><TD>read_text</TD></TR><TR><TD>write_bytes</TD></TR><TR><TD>write_text</TD></TR><TR><TD>iterdir</TD></TR><TR><TD>_scandir</TD></TR><TR><TD>_make_child_relpath</TD></TR><TR><TD>glob</TD></TR><TR><TD>rglob</TD></TR><TR><TD>walk</TD></TR><TR><TD>absolute</TD></TR><TR><TD>resolve</TD></TR><TR><TD>owner</TD></TR><TR><TD>group</TD></TR><TR><TD>readlink</TD></TR><TR><TD>touch</TD></TR><TR><TD>mkdir</TD></TR><TR><TD>chmod</TD></TR><TR><TD>lchmod</TD></TR><TR><TD>unlink</TD></TR><TR><TD>rmdir</TD></TR><TR><TD>rename</TD></TR><TR><TD>replace</TD></TR><TR><TD>symlink_to</TD></TR><TR><TD>hardlink_to</TD></TR><TR><TD>expanduser</TD></TR>
+          </TABLE>
+        </TD>
+      </TR>
+    </TABLE>>]
+	"typer.models.Context" [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="1" CELLPADDING="1">
+      <TR>
+        <TD><BR ALIGN="LEFT" />  <I>typer.models.Context </I> <BR ALIGN="LEFT" /></TD>
+      </TR>
+      <TR>
+        <TD>
+          <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+          <TR><TD></TD></TR>
+          </TABLE>
+        </TD>
+      </TR>
+      <TR>
+        <TD>
+          <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+          <TR><TD></TD></TR>
+          </TABLE>
+        </TD>
+      </TR>
+    </TABLE>>]
+	"typing.Annotated" [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="1" CELLPADDING="1">
+      <TR>
+        <TD><BR ALIGN="LEFT" />  <I>typing.Annotated </I> <BR ALIGN="LEFT" /></TD>
+      </TR>
+      <TR>
+        <TD>
+          <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+          <TR><TD></TD></TR>
+          </TABLE>
+        </TD>
+      </TR>
+      <TR>
+        <TD>
+          <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+          <TR><TD>_class_getitem_inner</TD></TR>
+          </TABLE>
+        </TD>
+      </TR>
+    </TABLE>>]
+	"pathlib.Path" [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="1" CELLPADDING="1">
+      <TR>
+        <TD><BR ALIGN="LEFT" />  <I>pathlib.Path (pathlib.PurePath)</I> <BR ALIGN="LEFT" /></TD>
+      </TR>
+      <TR>
+        <TD>
+          <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+          <TR><TD>cwd: object</TD></TR><TR><TD>home: object</TD></TR>
+          </TABLE>
+        </TD>
+      </TR>
+      <TR>
+        <TD>
+          <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+          <TR><TD>stat</TD></TR><TR><TD>lstat</TD></TR><TR><TD>exists</TD></TR><TR><TD>is_dir</TD></TR><TR><TD>is_file</TD></TR><TR><TD>is_mount</TD></TR><TR><TD>is_symlink</TD></TR><TR><TD>is_junction</TD></TR><TR><TD>is_block_device</TD></TR><TR><TD>is_char_device</TD></TR><TR><TD>is_fifo</TD></TR><TR><TD>is_socket</TD></TR><TR><TD>samefile</TD></TR><TR><TD>open</TD></TR><TR><TD>read_bytes</TD></TR><TR><TD>read_text</TD></TR><TR><TD>write_bytes</TD></TR><TR><TD>write_text</TD></TR><TR><TD>iterdir</TD></TR><TR><TD>_scandir</TD></TR><TR><TD>_make_child_relpath</TD></TR><TR><TD>glob</TD></TR><TR><TD>rglob</TD></TR><TR><TD>walk</TD></TR><TR><TD>absolute</TD></TR><TR><TD>resolve</TD></TR><TR><TD>owner</TD></TR><TR><TD>group</TD></TR><TR><TD>readlink</TD></TR><TR><TD>touch</TD></TR><TR><TD>mkdir</TD></TR><TR><TD>chmod</TD></TR><TR><TD>lchmod</TD></TR><TR><TD>unlink</TD></TR><TR><TD>rmdir</TD></TR><TR><TD>rename</TD></TR><TR><TD>replace</TD></TR><TR><TD>symlink_to</TD></TR><TR><TD>hardlink_to</TD></TR><TR><TD>expanduser</TD></TR>
+          </TABLE>
+        </TD>
+      </TR>
+    </TABLE>>]
+	"pathlib.PurePath" -> "pathlib.Path"
+	"pathlib.PurePath" -> "pathlib.Path"
+}

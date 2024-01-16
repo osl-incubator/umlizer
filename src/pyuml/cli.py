@@ -9,9 +9,9 @@ from typer import Context, Option
 from typing_extensions import Annotated
 
 from pyuml import class_graph
+from pyuml import __version__
 
-
-app = Typer()
+app = typer.Typer()
 
 
 @app.callback(invoke_without_command=True)
@@ -19,38 +19,46 @@ def main(
     ctx: Context,
     version: bool = Option(
         None,
-        "--version",
-        "-v",
+        '--version',
+        '-v',
         is_flag=True,
-        help="Show the version and exit.",
+        help='Show the version and exit.',
     ),
 ) -> None:
-    """Process envers for specific flags, otherwise show the help menu."""
+    """Run pyuml."""
     if version:
-        typer.echo(f"Version: {__version__}")
+        typer.echo(f'Version: {__version__}')
         raise typer.Exit()
 
     if ctx.invoked_subcommand is None:
         typer.echo(ctx.get_help())
         raise typer.Exit(0)
 
+@app.command("class")
 def class_(
     source: Annotated[
-        Path, typer.Option(help="Source path for the project that would be scanned.")
-    ] = "",
+        Path,
+        typer.Option(
+            ...,
+            help='Source path for the project that would be scanned.'
+        ),
+    ] = Path("."),
     target: Annotated[
-        Path, typer.Option(help="Target path where the UML graph will be generated.")
-    ] = "",
+        Path,
+        typer.Option(
+            ...,
+            help='Target path where the UML graph will be generated.'
+        ),
+    ] = Path("/tmp"),
     verbose: Annotated[
-        bool, typer.Option(help="Active the verbose mode.")
-    ] = "",
-
+        bool, typer.Option(help='Active the verbose mode.')
+    ] = False,
 ) -> None:
-    g = class_graph.create_class_diagram_from_source(
-        source, verbose=verbose
-    )
+    """Run the command for class graph."""
+    g = class_graph.create_class_diagram_from_source(source, verbose=verbose)
     g.format = 'png'
     g.render(target)
+
 
 if __name__ == '__main__':
     main()

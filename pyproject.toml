@@ -15,7 +15,7 @@ packages = [
 include = ["src/pyuml/py.typed"]
 
 [tool.poetry.scripts]
-"envers" = "pyuml.__main__:app"
+"pyuml" = "pyuml.__main__:app"
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4"
