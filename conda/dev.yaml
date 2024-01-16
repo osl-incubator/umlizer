@@ -3,6 +3,7 @@ channels:
   - nodefaults
   - conda-forge
 dependencies:
+  - graphviz
   - python >=3.8
   - pip
   - poetry >= 1.5
