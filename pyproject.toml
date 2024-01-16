@@ -3,3 +3,18 @@ line-length = 79
 skip-string-normalization = true
 target-version = ["py36", "py37", "py38"]
 
+[tool.poetry]
+name = "pyuml"
+version = "0.1.0"
+description = "Tool for creating UML from project files"
+authors = ["Ivan Ogasawara <ivan.ogasawara@gmail.com>"]
+license = "BSD-3-Clause"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
