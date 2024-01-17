@@ -1,6 +1,6 @@
-* PyUML version:
-* Python version:
-* Operating System:
+- PyUML version:
+- Python version:
+- Operating System:
 
 ### Description
 
