@@ -31,7 +31,7 @@ jobs:
           environment-file: conda/dev.yaml
           channels: conda-forge,nodefaults
           channel-priority: true
-          activate-environment: pyuml
+          activate-environment: umlizer
           auto-update-conda: true
           conda-solver: libmamba
 

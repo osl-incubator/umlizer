@@ -8,7 +8,7 @@ import typer
 from typer import Context, Option
 from typing_extensions import Annotated
 
-from pyuml import __version__, class_graph
+from umlizer import __version__, class_graph
 
 app = typer.Typer()
 
@@ -24,7 +24,7 @@ def main(
         help='Show the version and exit.',
     ),
 ) -> None:
-    """Run pyuml."""
+    """Run umlizer."""
     if version:
         typer.echo(f'Version: {__version__}')
         raise typer.Exit()

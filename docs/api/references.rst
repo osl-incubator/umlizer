@@ -1,8 +1,8 @@
 API references
 ==============
 
-.. automodule:: pyuml
+.. automodule:: umlizer
     :members:
 
-.. automodule:: pyuml.pyuml
+.. automodule:: umlizer.umlizer
     :members:

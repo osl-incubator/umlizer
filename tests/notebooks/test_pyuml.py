@@ -1,8 +1,8 @@
-"""Main tests for pyuml."""
+"""Main tests for umlizer."""
 
 
 def test_import() -> None:
     """Test import."""
-    import pyuml
+    import umlizer
 
-    assert pyuml
+    assert umlizer

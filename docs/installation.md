@@ -2,14 +2,14 @@
 
 ## Stable release
 
-To install PyUML, run this command in your
+To install UMLizer, run this command in your
 terminal:
 
 ```bash
-$ pip install pyuml
+$ pip install umlizer
 ```
 
-This is the preferred method to install PyUML,
+This is the preferred method to install UMLizer,
 as it will always install the most recent stable release.
 
 If you don't have [pip](https://pip.pypa.io) installed, this
@@ -18,20 +18,20 @@ can guide you through the process.
 
 ## From sources
 
-The sources for PyUML can be downloaded from
-the [Github repo](https://github.com/osl-incubator/pyuml).
+The sources for UMLizer can be downloaded from
+the [Github repo](https://github.com/osl-incubator/umlizer).
 
 You can either clone the public repository:
 
 ```bash
-$ git clone https://github.com/osl-incubator/pyuml
+$ git clone https://github.com/osl-incubator/umlizer
 ```
 
 Or download the
-[tarball](https://github.com/osl-incubator/pyuml/tarball/main):
+[tarball](https://github.com/osl-incubator/umlizer/tarball/main):
 
 ```bash
-$ curl -OJL https://github.com/osl-incubator/pyuml/tarball/main
+$ curl -OJL https://github.com/osl-incubator/umlizer/tarball/main
 ```
 
 Once you have a copy of the source, you can install it with:

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pyuml"
+name = "umlizer"
 version = "0.1.0"
 description = "Tool for creating UML from project files"
 authors = ["Ivan Ogasawara <ivan.ogasawara@gmail.com>"]
@@ -10,12 +10,12 @@ exclude = [
   ".env*",
 ]
 packages = [
-  {include = "pyuml", from="src"},
+  {include = "umlizer", from="src"},
 ]
-include = ["src/pyuml/py.typed"]
+include = ["src/umlizer/py.typed"]
 
 [tool.poetry.scripts]
-"pyuml" = "pyuml.__main__:app"
+"umlizer" = "umlizer.__main__:app"
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4"

@@ -1,4 +1,4 @@
-- PyUML version:
+- UMLizer version:
 - Python version:
 - Operating System:
 
