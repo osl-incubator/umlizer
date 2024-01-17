@@ -1,9 +1,9 @@
-# PyUML
+# UMLizer
 
 Python tools for UML
 
 - LICENSE: BSD 3 Clause
-- Documentation: https://osl-incubator.github.io/pyuml
+- Documentation: https://osl-incubator.github.io/umlizer
 
 ## Features
 
@@ -12,5 +12,5 @@ TBD
 ## Class Diagram
 
 ```bash
-$ pyuml class --source ./src/pyuml --target ./docs/uml/class_graph --verbose
+$ umlizer class --source ./src/umlizer --target ./docs/uml/class_graph --verbose
 ```

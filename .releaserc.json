@@ -13,12 +13,12 @@
       {
         "replacements": [
           {
-            "files": ["src/pyuml/__init__.py"],
+            "files": ["src/umlizer/__init__.py"],
             "from": "return \".*\"  # semantic-release",
             "to": "return \"${nextRelease.version}\"  # semantic-release",
             "results": [
               {
-                "file": "src/pyuml/__init__.py",
+                "file": "src/umlizer/__init__.py",
                 "hasChanged": true,
                 "numMatches": 1,
                 "numReplacements": 1
@@ -70,7 +70,7 @@
         "assets": [
           "pyproject.toml",
           "docs/changelog.md",
-          "src/pyuml/__init__.py"
+          "src/umlizer/__init__.py"
         ],
         "message": "chore(release): ${nextRelease.version}"
       }

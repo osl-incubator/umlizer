@@ -1,4 +1,4 @@
-name: pyuml
+name: umlizer
 channels:
   - nodefaults
   - conda-forge
