@@ -8,3 +8,4 @@ dependencies:
   - pip
   - poetry >= 1.5
   - nodejs # used by semantic-release
+  - shellcheck
