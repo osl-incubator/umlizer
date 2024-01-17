@@ -1,9 +1,10 @@
 name: pyuml
 channels:
-    - nodefaults
-    - conda-forge
+  - nodefaults
+  - conda-forge
 dependencies:
-    - graphviz
-    - python >=3.8
-    - pip
-    - poetry >= 1.5
+  - graphviz
+  - python >=3.8
+  - pip
+  - poetry >= 1.5
+  - nodejs # used by semantic-release
