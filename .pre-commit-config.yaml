@@ -30,7 +30,11 @@ repos:
         name: ruff-linter
         entry: ruff check
         language: system
-        exclude: "docs/"
+        exclude: |
+          (?x)(
+            docs|
+            tests
+          )
         pass_filenames: true
         types:
           - python
@@ -41,6 +45,11 @@ repos:
         language: system
         files: "./"
         pass_filenames: true
+        exclude: |
+          (?x)(
+            docs|
+            tests
+          )
         types:
           - python
 

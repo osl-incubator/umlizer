@@ -1,3 +1,6 @@
+"""Create graphviz for classes."""
+from __future__ import annotations
+
 import copy
 import dataclasses
 import glob
@@ -7,8 +10,8 @@ import os
 import sys
 import types
 
-from functools import cache
 from pathlib import Path
+from typing import Any, Type, Union, cast
 
 import graphviz as gv
 import typer
@@ -21,8 +24,7 @@ def raise_error(message: str, exit_code: int = 1) -> None:
     raise typer.Exit(exit_code)
 
 
-@cache
-def _get_fullname(entity: types.ModuleType) -> str:
+def _get_fullname(entity: Type[Any]) -> str:
     """
     Get the fully qualified name of a given entity.
 
@@ -39,8 +41,7 @@ def _get_fullname(entity: types.ModuleType) -> str:
     return f'{entity.__module__}.{entity.__name__}'
 
 
-@cache
-def _get_methods(entity: types.ModuleType) -> list:
+def _get_methods(entity: Type[Any]) -> list[str]:
     """
     Return a list of methods of a given entity.
 
@@ -61,35 +62,33 @@ def _get_methods(entity: types.ModuleType) -> list:
     ]
 
 
-@cache
-def _get_dataclass_structure(klass):
-    result = {'fields': {}, 'methods': _get_methods(klass)}
+def _get_dataclass_structure(
+    klass: Type[Any],
+) -> dict[str, Union[dict[str, str], list[str]]]:
+    fields = {
+        k: v.type.__name__ for k, v in klass.__dataclass_fields__.items()
+    }
+    return {'fields': fields, 'methods': _get_methods(klass)}
 
-    result['fields'].update(
-        {k: v.type.__name__ for k, v in klass.__dataclass_fields__.items()}
-    )
-    return result
 
-
-@cache
-def _get_base_classes(klass):
+def _get_base_classes(klass: Type[Any]) -> list[Type[Any]]:
     return [
         c
         for c in klass.__mro__
-        if c.__name__ != 'object' and c.__name__ != klass.__name__
+        if c.__name__ not in ('object', klass.__name__)
     ]
 
 
-@cache
-def _get_annotations(klass):
+def _get_annotations(klass: Type[Any]) -> dict[str, Any]:
     return getattr(klass, '__annotations__', {})
 
 
-@cache
-def _get_classicclass_structure(klass):
+def _get_classicclass_structure(
+    klass: Type[Any],
+) -> dict[str, Union[dict[str, str], list[str]]]:
     _methods = _get_methods(klass)
 
-    result = {
+    return {
         'fields': {
             k: _get_annotations(klass).get(k, object).__name__
             for k in list(klass.__dict__.keys())
@@ -97,19 +96,20 @@ def _get_classicclass_structure(klass):
         },
         'methods': _methods,
     }
-    return result
 
 
-@cache
-def _get_class_structure(klass):
+def _get_class_structure(
+    klass: Type[Any],
+) -> dict[str, Union[dict[str, str], list[str]]]:
     if dataclasses.is_dataclass(klass):
         return _get_dataclass_structure(klass)
     elif inspect.isclass(klass):
         return _get_classicclass_structure(klass)
 
+    raise Exception('The given class is not actually a class.')
 
-@cache
-def _get_entity_class_uml(entity) -> str:
+
+def _get_entity_class_uml(entity: Type[Any]) -> str:
     """
     Generate the UML node representation for a given class entity.
 
@@ -134,27 +134,23 @@ def _get_entity_class_uml(entity) -> str:
         class_name += f' : {base_classes}'
 
     # Formatting fields and methods
+    fields_struct = cast(dict[str, str], class_structure['fields'])
     fields = (
-        '\\l'.join(
-            [f'+ {k}: {v}' for k, v in class_structure['fields'].items()]
-        )
-        + '\\l'
+        '\\l'.join([f'+ {k}: {v}' for k, v in fields_struct.items()]) + '\\l'
     )
-    methods = (
-        '\\l'.join([f'+ {m}()' for m in class_structure['methods']]) + '\\l'
-    )
+    methods_struct = cast(list[str], class_structure['methods'])
+    methods = '\\l'.join([f'+ {m}()' for m in methods_struct]) + '\\l'
 
     # Combine class name, fields, and methods into the UML node format
     uml_representation = '{' + f'{class_name}|{fields}|{methods}' + '}'
     return uml_representation
 
 
-@cache
 def _search_modules(
     target: str, exclude_pattern: list[str] = ['__pycache__']
 ) -> list[str]:
     """
-    Search for Python modules in a given directory, excluding specified patterns.
+    Search for Python modules in a given path, excluding specified patterns.
 
     Parameters
     ----------
@@ -181,12 +177,10 @@ def _search_modules(
     return results
 
 
-@cache
 def _extract_filename(filename: str) -> str:
     return filename.split(os.sep)[-1].split('.')[0]
 
 
-@cache
 def _extract_module_name(module_path: str) -> tuple[str, str]:
     """
     Extract the module name from its file path.
@@ -211,8 +205,7 @@ def _extract_module_name(module_path: str) -> tuple[str, str]:
     return module_path, module_name
 
 
-@cache
-def _get_classes_from_module(module_path: str) -> list:
+def _get_classes_from_module(module_path: str) -> list[Type[Any]]:
     """
     Extract classes from a given module path using importlib.import_module.
 
@@ -248,7 +241,11 @@ def _get_classes_from_module(module_path: str) -> list:
     return classes_list
 
 
-def create_class_diagram(classes_list: list, verbose: bool = False):
+def create_class_diagram(
+    classes_list: list[Type[Any]],
+    verbose: bool = False,
+) -> gv.Digraph:
+    """Create a diagram for a list of classes."""
     g = gv.Digraph(comment='Graph')
     g.attr('node', shape='record', rankdir='BT')
 

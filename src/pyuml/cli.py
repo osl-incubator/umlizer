@@ -8,8 +8,7 @@ import typer
 from typer import Context, Option
 from typing_extensions import Annotated
 
-from pyuml import class_graph
-from pyuml import __version__
+from pyuml import __version__, class_graph
 
 app = typer.Typer()
 
@@ -34,22 +33,21 @@ def main(
         typer.echo(ctx.get_help())
         raise typer.Exit(0)
 
-@app.command("class")
+
+@app.command('class')
 def class_(
     source: Annotated[
         Path,
         typer.Option(
-            ...,
-            help='Source path for the project that would be scanned.'
+            ..., help='Source path for the project that would be scanned.'
         ),
-    ] = Path("."),
+    ] = Path('.'),
     target: Annotated[
         Path,
         typer.Option(
-            ...,
-            help='Target path where the UML graph will be generated.'
+            ..., help='Target path where the UML graph will be generated.'
         ),
-    ] = Path("/tmp"),
+    ] = Path('/tmp'),
     verbose: Annotated[
         bool, typer.Option(help='Active the verbose mode.')
     ] = False,
@@ -61,4 +59,4 @@ def class_(
 
 
 if __name__ == '__main__':
-    main()
+    app()
