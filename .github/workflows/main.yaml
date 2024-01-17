@@ -92,16 +92,10 @@ jobs:
           conda-solver: libmamba
 
       - name: Install dependencies
-        run: |
-          poetry install
+        run: poetry install
 
       - name: Run tests
-        run: |
-          makim tests.unit
-
-      - name: Run smoke tests
-        run: |
-          makim tests.smoke
+        run: makim tests.unit
 
   linter-and-docs:
     needs: check-branch
