@@ -1,6 +1,8 @@
 """Main module template with example functions."""
 from __future__ import annotations
 
+import os
+
 from pathlib import Path
 
 import typer
@@ -11,6 +13,31 @@ from typing_extensions import Annotated
 from umlizer import __version__, class_graph
 
 app = typer.Typer()
+
+
+def make_absolute(relative_path: Path) -> Path:
+    """
+    Convert a relative Path to absolute, relative to the current cwd.
+
+    Parameters
+    ----------
+    relative_path : Path
+        The path to be converted to absolute.
+
+    Returns
+    -------
+    Path
+        The absolute path.
+    """
+    # Get current working directory
+    current_directory = Path(os.getcwd())
+
+    # Return absolute path
+    return (
+        current_directory / relative_path
+        if not relative_path.is_absolute()
+        else relative_path
+    )
 
 
 @app.callback(invoke_without_command=True)
@@ -47,12 +74,15 @@ def class_(
         typer.Option(
             ..., help='Target path where the UML graph will be generated.'
         ),
-    ] = Path('/tmp'),
+    ] = Path('/tmp/'),
     verbose: Annotated[
         bool, typer.Option(help='Active the verbose mode.')
     ] = False,
 ) -> None:
     """Run the command for class graph."""
+    source = make_absolute(source)
+    target = make_absolute(target) / 'class_graph'
+
     g = class_graph.create_class_diagram_from_source(source, verbose=verbose)
     g.format = 'png'
     g.render(target)

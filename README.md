@@ -12,5 +12,5 @@ TBD
 ## Class Diagram
 
 ```bash
-$ umlizer class --source ./src/umlizer --target ./docs/uml/class_graph --verbose
+$ umlizer class --source ./src/umlizer --target ./docs/uml/ --verbose
 ```

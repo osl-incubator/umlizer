@@ -87,13 +87,16 @@ def _get_classicclass_structure(
     klass: Type[Any],
 ) -> dict[str, Union[dict[str, str], list[str]]]:
     _methods = _get_methods(klass)
+    fields = {}
+
+    for k in list(klass.__dict__.keys()):
+        if k.startswith('__') or k in _methods:
+            continue
+        value = _get_annotations(klass).get(k, '')
+        fields[k] = getattr(value, '__value__', str(value))
 
     return {
-        'fields': {
-            k: _get_annotations(klass).get(k, object).__name__
-            for k in list(klass.__dict__.keys())
-            if not k.startswith('__') and k not in _methods
-        },
+        'fields': fields,
         'methods': _methods,
     }
 
@@ -131,15 +134,29 @@ def _get_entity_class_uml(entity: Type[Any]) -> str:
     class_name = f'{entity.__name__}'
 
     if base_classes:
-        class_name += f' : {base_classes}'
+        class_name += f' ({base_classes})'
 
     # Formatting fields and methods
     fields_struct = cast(dict[str, str], class_structure['fields'])
     fields = (
-        '\\l'.join([f'+ {k}: {v}' for k, v in fields_struct.items()]) + '\\l'
+        '\\l'.join(
+            [
+                f'{"-" if k.startswith("_") else "+"} {k}: {v}'
+                for k, v in fields_struct.items()
+            ]
+        )
+        + '\\l'
     )
     methods_struct = cast(list[str], class_structure['methods'])
-    methods = '\\l'.join([f'+ {m}()' for m in methods_struct]) + '\\l'
+    methods = (
+        '\\l'.join(
+            [
+                f'{"-" if m.startswith("_") else "+"} {m}()'
+                for m in methods_struct
+            ]
+        )
+        + '\\l'
+    )
 
     # Combine class name, fields, and methods into the UML node format
     uml_representation = '{' + f'{class_name}|{fields}|{methods}' + '}'
