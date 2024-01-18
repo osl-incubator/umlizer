@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "umlizer"
+name = "umlizer"  # semantic-release
 version = "0.1.0"
 description = "Tool for creating UML from project files"
 authors = ["Ivan Ogasawara <ivan.ogasawara@gmail.com>"]
