@@ -14,8 +14,8 @@
         "replacements": [
           {
             "files": ["src/umlizer/__init__.py"],
-            "from": "return \".*\"  # semantic-release",
-            "to": "return \"${nextRelease.version}\"  # semantic-release",
+            "from": "return '.*'  # semantic-release",
+            "to": "return '${nextRelease.version}'  # semantic-release",
             "results": [
               {
                 "file": "src/umlizer/__init__.py",
