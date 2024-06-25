@@ -233,8 +233,14 @@ def _get_entity_class_uml(klass: ClassDef) -> str:
     methods_raw = []
     for m_name, m_metadata in methods_struct.items():
         m_visibility = '-' if m_name.startswith('_') else '+'
-        m_type = m_metadata.get('return', 'Any')
-        methods_raw.append(f'{m_visibility} {m_name}(): {m_type}')
+        m_type = m_metadata.get('return', 'Any').replace('builtins.', '')
+        m_params_raw = [
+            f"{k}: {v.replace('builtins.', '')}"
+            for k, v in m_metadata.items()
+            if k != 'return'
+        ]
+        m_params = ', '.join(m_params_raw)
+        methods_raw.append(f'{m_visibility} {m_name}({m_params}): {m_type}')
 
     methods = '\\l'.join(methods_raw) + '\\l'
 
