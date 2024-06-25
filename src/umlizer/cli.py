@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 
 import typer
+import yaml
 
 from typer import Context, Option
 from typing_extensions import Annotated
@@ -83,7 +84,14 @@ def class_(
     source = make_absolute(source)
     target = make_absolute(target) / 'class_graph'
 
-    g = class_graph.create_class_diagram_from_source(source, verbose=verbose)
+    classes_nodes = class_graph.load_classes_definition(
+        source, verbose=verbose
+    )
+
+    with open(f'{target}.yaml', 'w') as f:
+        yaml.dump(classes_nodes, f, indent=2, sort_keys=False)
+
+    g = class_graph.create_diagram(classes_nodes, verbose=verbose)
     g.format = 'png'
     g.render(target)
 

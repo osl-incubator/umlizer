@@ -11,10 +11,21 @@ import sys
 import types
 
 from pathlib import Path
-from typing import Any, Type, Union, cast
+from typing import Any, Type, cast
 
 import graphviz as gv
 import typer
+
+
+@dataclasses.dataclass
+class ClassDef:
+    """Definition of class attributes and methods."""
+
+    name: str = ''
+    module: str = ''
+    bases: list[str] = []
+    fields: dict[str, str] = {}
+    methods: dict[str, dict[str, str]] = {}
 
 
 def raise_error(message: str, exit_code: int = 1) -> None:
@@ -41,7 +52,11 @@ def _get_fullname(entity: Type[Any]) -> str:
     return f'{entity.__module__}.{entity.__name__}'
 
 
-def _get_methods(entity: Type[Any]) -> list[str]:
+def _get_method_annotation(method: types.FunctionType) -> dict[str, str]:
+    return copy.deepcopy(getattr(method, '__annotations__', {}))
+
+
+def _get_methods(entity: Type[Any]) -> dict[str, dict[str, str]]:
     """
     Return a list of methods of a given entity.
 
@@ -55,20 +70,28 @@ def _get_methods(entity: Type[Any]) -> list[str]:
     list
         A list of method names.
     """
-    return [
-        k
-        for k, v in entity.__dict__.items()
-        if not k.startswith('__') and isinstance(v, types.FunctionType)
-    ]
+    methods = {}
+
+    for k, v in entity.__dict__.items():
+        if k.startswith('__') or not isinstance(v, types.FunctionType):
+            continue
+
+        methods[k] = _get_method_annotation(v)
+
+    return methods
 
 
 def _get_dataclass_structure(
     klass: Type[Any],
-) -> dict[str, Union[dict[str, str], list[str]]]:
+) -> ClassDef:
     fields = {
         k: v.type.__name__ for k, v in klass.__dataclass_fields__.items()
     }
-    return {'fields': fields, 'methods': _get_methods(klass)}
+    return ClassDef(
+        name='',
+        fields=fields,
+        methods=_get_methods(klass),
+    )
 
 
 def _get_base_classes(klass: Type[Any]) -> list[Type[Any]]:
@@ -83,9 +106,9 @@ def _get_annotations(klass: Type[Any]) -> dict[str, Any]:
     return getattr(klass, '__annotations__', {})
 
 
-def _get_classicclass_structure(
+def _get_classic_class_structure(
     klass: Type[Any],
-) -> dict[str, Union[dict[str, str], list[str]]]:
+) -> ClassDef:
     _methods = _get_methods(klass)
     fields = {}
 
@@ -95,30 +118,39 @@ def _get_classicclass_structure(
         value = _get_annotations(klass).get(k, '')
         fields[k] = getattr(value, '__value__', str(value))
 
-    return {
-        'fields': fields,
-        'methods': _methods,
-    }
+    return ClassDef(
+        fields=fields,
+        methods=_methods,
+    )
 
 
 def _get_class_structure(
     klass: Type[Any],
-) -> dict[str, Union[dict[str, str], list[str]]]:
+) -> ClassDef:
     if dataclasses.is_dataclass(klass):
-        return _get_dataclass_structure(klass)
+        class_struct = _get_dataclass_structure(klass)
     elif inspect.isclass(klass):
-        return _get_classicclass_structure(klass)
+        class_struct = _get_classic_class_structure(klass)
+    else:
+        raise Exception('The given class is not actually a class.')
 
-    raise Exception('The given class is not actually a class.')
+    class_struct.module = klass.__module__
+    class_struct.name = _get_fullname(klass)
+
+    class_struct.bases = []
+    for ref_class in _get_base_classes(klass):
+        class_struct.bases.append(_get_fullname(ref_class))
+
+    return class_struct
 
 
-def _get_entity_class_uml(entity: Type[Any]) -> str:
+def _get_entity_class_uml(klass: ClassDef) -> str:
     """
     Generate the UML node representation for a given class entity.
 
     Parameters
     ----------
-    entity : type
+    klass : type
         The class entity to be represented in UML.
 
     Returns
@@ -127,17 +159,14 @@ def _get_entity_class_uml(entity: Type[Any]) -> str:
         A string representation of the class in UML node format.
     """
     # Extract base classes, class structure, and format the class name
-    base_classes = ', '.join(
-        [_get_fullname(c) for c in _get_base_classes(entity)]
-    )
-    class_structure = _get_class_structure(entity)
-    class_name = f'{entity.__name__}'
+    base_classes = ', '.join(klass.bases)
+    class_name = klass.name
 
     if base_classes:
         class_name += f' ({base_classes})'
 
     # Formatting fields and methods
-    fields_struct = cast(dict[str, str], class_structure['fields'])
+    fields_struct = klass.fields
     fields = (
         '\\l'.join(
             [
@@ -147,16 +176,15 @@ def _get_entity_class_uml(entity: Type[Any]) -> str:
         )
         + '\\l'
     )
-    methods_struct = cast(list[str], class_structure['methods'])
-    methods = (
-        '\\l'.join(
-            [
-                f'{"-" if m.startswith("_") else "+"} {m}()'
-                for m in methods_struct
-            ]
+    methods_struct = cast(list[dict[str, Any]], klass.methods)
+    methods_raw = []
+    for m in methods_struct:
+        m_name = m['name']
+        methods_raw.append(
+            f'{"-" if m_name.startswith("_") else "+"} {m_name}()'
         )
-        + '\\l'
-    )
+
+    methods = '\\l'.join(methods_raw) + '\\l'
 
     # Combine class name, fields, and methods into the UML node format
     uml_representation = '{' + f'{class_name}|{fields}|{methods}' + '}'
@@ -258,8 +286,8 @@ def _get_classes_from_module(module_path: str) -> list[Type[Any]]:
     return classes_list
 
 
-def create_class_diagram(
-    classes_list: list[Type[Any]],
+def create_diagram(
+    classes_list: list[ClassDef],
     verbose: bool = False,
 ) -> gv.Digraph:
     """Create a diagram for a list of classes."""
@@ -267,24 +295,24 @@ def create_class_diagram(
     g.attr('node', shape='record', rankdir='BT')
 
     edges = []
-    for c in classes_list:
-        g.node(_get_fullname(c), _get_entity_class_uml(c))
+    for klass in classes_list:
+        g.node(klass.name, _get_entity_class_uml(klass))
 
-        for b in _get_base_classes(c):
-            edges.append((_get_fullname(b), _get_fullname(c)))
+        for b in klass.bases:
+            edges.append((b, klass.name))
 
         if verbose:
-            print('[II]', _get_fullname(c), '- included.')
+            print('[II]', klass.name, '- included.')
 
     g.edges(set(edges))
     return g
 
 
-def create_class_diagram_from_source(
+def load_classes_definition(
     source: Path, verbose: bool = False
-) -> gv.Digraph:
+) -> list[ClassDef]:
     """
-    Create a class diagram from the source code located at the specified path.
+    Load classes definition from the source code located at the specified path.
 
     Parameters
     ----------
@@ -295,8 +323,7 @@ def create_class_diagram_from_source(
 
     Returns
     -------
-    gv.Digraph
-        Graphviz Digraph object representing the class diagram.
+    ClassDef
 
     Raises
     ------
@@ -318,4 +345,9 @@ def create_class_diagram_from_source(
             classes_list.extend(_get_classes_from_module(f))
     else:
         classes_list.extend(_get_classes_from_module(path_str))
-    return create_class_diagram(classes_list, verbose=verbose)
+
+    result = []
+    for c in classes_list:
+        result.append(_get_class_structure(c))
+
+    return result
