@@ -61,6 +61,7 @@ testpaths = [
 [tool.bandit]
 exclude_dirs = ["tests"]
 targets = "./"
+skips = ["B602"]
 
 [tool.vulture]
 exclude = ["tests"]

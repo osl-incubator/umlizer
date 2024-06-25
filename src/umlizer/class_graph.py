@@ -97,7 +97,8 @@ def _get_dataclass_structure(
     klass: Type[Any],
 ) -> ClassDef:
     fields = {
-        k: v.type.__name__ for k, v in klass.__dataclass_fields__.items()
+        k: getattr(v.type, '__name__', 'Any')
+        for k, v in klass.__dataclass_fields__.items()
     }
     return ClassDef(
         name='',
