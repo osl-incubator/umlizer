@@ -166,7 +166,7 @@ def _get_classic_class_structure(klass: Type[Any]) -> ClassDef:
     for k in list(klass.__dict__.keys()):
         if k.startswith('__') or k in _methods:
             continue
-        value = klass_anno.get(k, '')
+        value = klass_anno.get(k, 'UNKNOWN')
         fields[k] = getattr(value, '__value__', str(value))
 
     if not fields:
@@ -334,6 +334,7 @@ def _get_classes_from_module(module_path: str) -> list[Type[Any]]:
         print(f' Error loading module {module_name} '.center(80, '='))
         print(e)
         print('.' * 80)
+        sys.path = original_path
         return []
     return classes_list
 
@@ -385,6 +386,7 @@ def load_classes_definition(
         If the provided path is not a directory.
     """
     classes_list = []
+    module_files = []
 
     path_str = str(source)
 
@@ -392,14 +394,11 @@ def load_classes_definition(
         raise_error(f'Path "{path_str}" doesn\'t  exist.', 1)
     if os.path.isdir(path_str):
         sys.path.insert(0, path_str)
-
-        for f in _search_modules(path_str):
-            classes_list.extend(_get_classes_from_module(f))
+        module_files.extend(_search_modules(path_str))
     else:
-        classes_list.extend(_get_classes_from_module(path_str))
+        module_files.append(path_str)
 
-    result = []
-    for c in classes_list:
-        result.append(_get_class_structure(c))
+    for file_path in module_files:
+        classes_list.extend(_get_classes_from_module(file_path))
 
-    return result
+    return [_get_class_structure(cls) for cls in classes_list]
