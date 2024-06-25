@@ -100,6 +100,15 @@ def class_(
             ..., help='Target path where the UML graph will be generated.'
         ),
     ] = Path('/tmp/'),
+    exclude: Annotated[
+        str,
+        typer.Option(
+            help=(
+                'Exclude directories, modules, or classes '
+                '(eg. "migrations/*,scripts/*").'
+            )
+        ),
+    ] = '',
     verbose: Annotated[
         bool, typer.Option(help='Active the verbose mode.')
     ] = False,
@@ -109,7 +118,7 @@ def class_(
     target = make_absolute(target) / 'class_graph'
 
     classes_nodes = class_graph.load_classes_definition(
-        source, verbose=verbose
+        source, exclude=exclude, verbose=verbose
     )
 
     with open(f'{target}.yaml', 'w') as f:

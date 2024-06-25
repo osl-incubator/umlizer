@@ -254,7 +254,8 @@ def _get_entity_class_uml(klass: ClassDef) -> str:
 
 
 def _search_modules(
-    target: str, exclude_pattern: list[str] = ['__pycache__']
+    target: str,
+    exclude_pattern: list[str] = ['__pycache__'],
 ) -> list[str]:
     """
     Search for Python modules in a given path, excluding specified patterns.
@@ -372,7 +373,9 @@ def create_diagram(
 
 
 def load_classes_definition(
-    source: Path, verbose: bool = False
+    source: Path,
+    exclude: str,
+    verbose: bool = False,
 ) -> list[ClassDef]:
     """
     Load classes definition from the source code located at the specified path.
@@ -381,6 +384,7 @@ def load_classes_definition(
     ----------
     source : Path
         The path to the source code.
+    exclude: pattern that excludes directories, modules or classes
     verbose : bool, optional
         Flag to enable verbose logging, by default False.
 
@@ -404,7 +408,11 @@ def load_classes_definition(
         raise_error(f'Path "{path_str}" doesn\'t  exist.', 1)
     if os.path.isdir(path_str):
         sys.path.insert(0, path_str)
-        module_files.extend(_search_modules(path_str))
+        exclude_pattern = [exclude.strip() for exclude in exclude.split(',')]
+        exclude_pattern.append('__pycache__')
+        module_files.extend(
+            _search_modules(path_str, exclude_pattern=exclude_pattern)
+        )
     else:
         module_files.append(path_str)
 
