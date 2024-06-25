@@ -16,6 +16,8 @@ from typing import Any, Type, cast
 import graphviz as gv
 import typer
 
+from umlizer.utils import is_function
+
 
 @dataclasses.dataclass
 class ClassDef:
@@ -81,7 +83,7 @@ def _get_methods(entity: Type[Any]) -> dict[str, dict[str, str]]:
     methods = {}
 
     for k, v in entity.__dict__.items():
-        if k.startswith('__') or not isinstance(v, types.FunctionType):
+        if k.startswith('__') or not is_function(v):
             continue
 
         methods[k] = _get_method_annotation(v)
@@ -119,13 +121,30 @@ def _get_classic_class_structure(
     klass: Type[Any],
 ) -> ClassDef:
     _methods = _get_methods(klass)
+
+    klass_anno = _get_annotations(klass)
+
     fields = {}
 
     for k in list(klass.__dict__.keys()):
         if k.startswith('__') or k in _methods:
             continue
-        value = _get_annotations(klass).get(k, '')
+        value = klass_anno.get(k, '')
         fields[k] = getattr(value, '__value__', str(value))
+
+    if not fields:
+        # maybe the attributes are created in the `__init__` method.
+        try:
+            obj_tmp = klass()
+            obj_anno = _get_annotations(obj_tmp)
+
+            for k in list(obj_tmp.__dict__.keys()):
+                if k.startswith('__') or k in _methods:
+                    continue
+                value = obj_anno.get(k, '')
+                fields[k] = getattr(value, '__value__', str(value))
+        except Exception as e:
+            print(e)
 
     return ClassDef(
         fields=fields,
@@ -176,21 +195,19 @@ def _get_entity_class_uml(klass: ClassDef) -> str:
 
     # Formatting fields and methods
     fields_struct = klass.fields
-    fields = (
-        '\\l'.join(
-            [
-                f'{"-" if k.startswith("_") else "+"} {k}: {v}'
-                for k, v in fields_struct.items()
-            ]
-        )
-        + '\\l'
-    )
+    fields_raw = []
+    for a_name, a_type in fields_struct.items():
+        a_visibility = '-' if a_name.startswith('_') else '+'
+        fields_raw.append(f'{a_visibility} {a_name}: {a_type}')
+
+    fields = '\\l'.join(fields_raw) + '\\l'
+
     methods_struct = cast(dict[str, dict[str, Any]], klass.methods)
     methods_raw = []
-    for m_name in methods_struct:
-        methods_raw.append(
-            f'{"-" if m_name.startswith("_") else "+"} {m_name}()'
-        )
+    for m_name, m_metadata in methods_struct.items():
+        m_visibility = '-' if m_name.startswith('_') else '+'
+        m_type = m_metadata.get('return', 'Any')
+        methods_raw.append(f'{m_visibility} {m_name}(): {m_type}')
 
     methods = '\\l'.join(methods_raw) + '\\l'
 
