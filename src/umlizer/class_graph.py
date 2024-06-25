@@ -51,11 +51,17 @@ def _get_fullname(entity: Type[Any]) -> str:
     str
         Fully qualified name of the entity.
     """
-    return f'{entity.__module__}.{entity.__name__}'
+    if hasattr(entity, '__module__'):
+        return f'{entity.__module__}.{entity.__name__}'
+    elif hasattr(entity, '__name__'):
+        return entity.__name__
+
+    return str(entity)
 
 
 def _get_method_annotation(method: types.FunctionType) -> dict[str, str]:
-    return copy.deepcopy(getattr(method, '__annotations__', {}))
+    annotations = getattr(method, '__annotations__', {})
+    return {k: _get_fullname(v) for k, v in annotations.items()}
 
 
 def _get_methods(entity: Type[Any]) -> dict[str, dict[str, str]]:
@@ -105,7 +111,8 @@ def _get_base_classes(klass: Type[Any]) -> list[Type[Any]]:
 
 
 def _get_annotations(klass: Type[Any]) -> dict[str, Any]:
-    return getattr(klass, '__annotations__', {})
+    annotations = getattr(klass, '__annotations__', {})
+    return {k: _get_fullname(v) for k, v in annotations.items()}
 
 
 def _get_classic_class_structure(
@@ -178,7 +185,7 @@ def _get_entity_class_uml(klass: ClassDef) -> str:
         )
         + '\\l'
     )
-    methods_struct = cast(list[dict[str, Any]], klass.methods)
+    methods_struct = cast(dict[str, dict[str, Any]], klass.methods)
     methods_raw = []
     for m_name in methods_struct:
         methods_raw.append(
