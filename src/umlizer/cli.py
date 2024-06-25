@@ -89,7 +89,9 @@ def class_(
     )
 
     with open(f'{target}.yaml', 'w') as f:
-        yaml.dump(classes_nodes, f, indent=2, sort_keys=False)
+        yaml.dump(
+            [c.__dict__ for c in classes_nodes], f, indent=2, sort_keys=False
+        )
 
     g = class_graph.create_diagram(classes_nodes, verbose=verbose)
     g.format = 'png'

@@ -23,9 +23,11 @@ class ClassDef:
 
     name: str = ''
     module: str = ''
-    bases: list[str] = []
-    fields: dict[str, str] = {}
-    methods: dict[str, dict[str, str]] = {}
+    bases: list[str] = dataclasses.field(default_factory=list)
+    fields: dict[str, str] = dataclasses.field(default_factory=dict)
+    methods: dict[str, dict[str, str]] = dataclasses.field(
+        default_factory=dict
+    )
 
 
 def raise_error(message: str, exit_code: int = 1) -> None:
@@ -178,8 +180,7 @@ def _get_entity_class_uml(klass: ClassDef) -> str:
     )
     methods_struct = cast(list[dict[str, Any]], klass.methods)
     methods_raw = []
-    for m in methods_struct:
-        m_name = m['name']
+    for m_name in methods_struct:
         methods_raw.append(
             f'{"-" if m_name.startswith("_") else "+"} {m_name}()'
         )
