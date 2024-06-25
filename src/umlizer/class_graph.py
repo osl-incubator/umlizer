@@ -219,7 +219,10 @@ def _get_entity_class_uml(klass: ClassDef) -> str:
     class_name = klass.name
 
     if base_classes:
-        class_name += f' ({base_classes})'
+        if len(base_classes) < 20:  # noqa: PLR2004
+            class_name += f' ({base_classes})'
+        else:
+            class_name += ' (\\n' + base_classes.replace(', ', ',\\n  ') + ')'
 
     # Formatting fields and methods
     fields_struct = klass.fields
