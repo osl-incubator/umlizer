@@ -109,6 +109,12 @@ def class_(
             )
         ),
     ] = '',
+    django_settings: Annotated[
+        str,
+        typer.Option(
+            help='Django settings module (eg. "config.settings.dev").'
+        ),
+    ] = '',
     verbose: Annotated[
         bool, typer.Option(help='Active the verbose mode.')
     ] = False,
@@ -116,6 +122,11 @@ def class_(
     """Run the command for class graph."""
     source = make_absolute(source)
     target = make_absolute(target) / 'class_graph'
+
+    if django_settings:
+        from umlizer.plugins import django
+
+        django.setup(django_settings)
 
     classes_nodes = class_graph.load_classes_definition(
         source, exclude=exclude, verbose=verbose

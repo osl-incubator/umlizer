@@ -309,7 +309,11 @@ def _extract_module_name(module_path: str) -> tuple[str, str]:
     module_split = module_path.split(os.sep)
     module_path = os.sep.join(module_split[:-1])
     module_filename = module_split[-1]
-    module_name = module_filename.rstrip('.py')
+
+    if module_filename.endswith('.py'):
+        module_name = module_filename[:-3]
+    else:
+        module_name = module_filename
     return module_path, module_name
 
 
