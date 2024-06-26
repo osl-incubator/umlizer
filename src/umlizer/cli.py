@@ -1,9 +1,6 @@
 """Main module template with example functions."""
 from __future__ import annotations
 
-import os
-import subprocess
-
 from pathlib import Path
 
 import typer
@@ -13,56 +10,9 @@ from typer import Context, Option
 from typing_extensions import Annotated
 
 from umlizer import __version__, class_graph, inspector
+from umlizer.utils import dot2svg, make_absolute
 
 app = typer.Typer()
-
-
-def dot2svg(target: Path) -> None:
-    """
-    Run the `dot` command to convert a Graphviz file to SVG format.
-
-    Parameters
-    ----------
-    target : str
-        The target Graphviz file to be converted.
-    """
-    command = f'dot -Tsvg {target} -o {target}.svg'
-    try:
-        result = subprocess.run(
-            command,
-            shell=True,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        print(result.stdout.decode())
-    except subprocess.CalledProcessError as e:
-        print(f'Error occurred: {e.stderr.decode()}')
-
-
-def make_absolute(relative_path: Path) -> Path:
-    """
-    Convert a relative Path to absolute, relative to the current cwd.
-
-    Parameters
-    ----------
-    relative_path : Path
-        The path to be converted to absolute.
-
-    Returns
-    -------
-    Path
-        The absolute path.
-    """
-    # Get current working directory
-    current_directory = Path(os.getcwd())
-
-    # Return absolute path
-    return (
-        current_directory / relative_path
-        if not relative_path.is_absolute()
-        else relative_path
-    )
 
 
 @app.callback(invoke_without_command=True)
