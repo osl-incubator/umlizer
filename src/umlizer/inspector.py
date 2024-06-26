@@ -359,3 +359,11 @@ def load_classes_definition(
         classes_list.extend(_get_classes_from_module(file_path))
 
     return [_get_class_structure(cls) for cls in classes_list]
+
+
+def dict_to_classdef(classes_list: list[dict[str, Any]]) -> list[ClassDef]:
+    """Convert class metadata from dict to ClassDef."""
+    classes_list_def: list[ClassDef] = []
+    for klass_metadata in classes_list:
+        classes_list_def.append(ClassDef(**klass_metadata))
+    return classes_list_def

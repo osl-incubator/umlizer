@@ -10,6 +10,7 @@ from typer import Context, Option
 from typing_extensions import Annotated
 
 from umlizer import __version__, class_graph, inspector
+from umlizer.inspector import dict_to_classdef
 from umlizer.utils import dot2svg, make_absolute
 
 app = typer.Typer()
@@ -68,6 +69,9 @@ def class_(
     verbose: Annotated[
         bool, typer.Option(help='Active the verbose mode.')
     ] = False,
+    from_yaml: Annotated[
+        bool, typer.Option(help='Create the class diagram from a yaml file.')
+    ] = False,
 ) -> None:
     """Run the command for class graph."""
     source = make_absolute(source)
@@ -78,14 +82,18 @@ def class_(
 
         django.setup(django_settings)
 
-    classes_nodes = inspector.load_classes_definition(
-        source, exclude=exclude, verbose=verbose
-    )
-
-    with open(f'{target}.yaml', 'w') as f:
-        yaml.dump(
-            [c.__dict__ for c in classes_nodes], f, indent=2, sort_keys=False
+    if not from_yaml:
+        classes_nodes = inspector.load_classes_definition(
+            source, exclude=exclude, verbose=verbose
         )
+        classes_metadata = [c.__dict__ for c in classes_nodes]
+        with open(f'{target}.yaml', 'w') as f:
+            yaml.dump(classes_metadata, f, indent=2, sort_keys=False)
+    else:
+        with open(source, 'r') as f:
+            classes_metadata = yaml.safe_load(f)
+
+    classes_nodes = dict_to_classdef(classes_metadata)
 
     g = class_graph.create_diagram(classes_nodes, verbose=verbose)
     g.format = 'png'
