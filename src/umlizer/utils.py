@@ -4,6 +4,8 @@ import re
 
 from typing import Any
 
+import typer
+
 
 def blob_to_regex(blob: str) -> str:
     """
@@ -45,3 +47,10 @@ def is_function(obj: Any) -> bool:
         False otherwise.
     """
     return inspect.isroutine(obj)
+
+
+def raise_error(message: str, exit_code: int = 1) -> None:
+    """Raise an error using typer."""
+    red_text = typer.style(message, fg=typer.colors.RED, bold=True)
+    typer.echo(red_text, err=True, color=True)
+    raise typer.Exit(exit_code)

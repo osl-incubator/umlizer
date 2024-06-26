@@ -12,7 +12,7 @@ import yaml
 from typer import Context, Option
 from typing_extensions import Annotated
 
-from umlizer import __version__, class_graph
+from umlizer import __version__, class_graph, inspector
 
 app = typer.Typer()
 
@@ -128,7 +128,7 @@ def class_(
 
         django.setup(django_settings)
 
-    classes_nodes = class_graph.load_classes_definition(
+    classes_nodes = inspector.load_classes_definition(
         source, exclude=exclude, verbose=verbose
     )
 
