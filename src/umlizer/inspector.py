@@ -48,18 +48,16 @@ def get_full_class_path(cls: Type[Any], root_path: Path) -> str:
         The full package path of the class.
     """
     module = cls.__module__
-    module_file = importlib.import_module(module).__file__
+    imported_module = importlib.import_module(module)
+    module_file = getattr(imported_module, '__file__', None)
 
     if module_file is None:
-        raise ValueError(f'The module file {module} is invalid.')
+        return _get_fullname(cls)
 
     root_path_str = str(root_path)
 
     if not module_file.startswith(root_path_str):
-        raise ValueError(
-            f'The module file {module_file} is not within the '
-            f'root path {root_path}'
-        )
+        return _get_fullname(cls)
 
     relative_path = os.path.relpath(module_file, root_path_str)
     package_path = os.path.splitext(relative_path)[0].replace(os.sep, '.')
@@ -219,7 +217,7 @@ def _get_class_structure(klass: Type[Any], root_path: Path) -> ClassDef:
 
     class_struct.bases = []
     for ref_class in _get_base_classes(klass):
-        class_struct.bases.append(_get_fullname(ref_class))
+        class_struct.bases.append(get_full_class_path(ref_class, root_path))
 
     return class_struct
 

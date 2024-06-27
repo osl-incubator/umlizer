@@ -52,6 +52,11 @@ def _get_entity_class_uml(klass: ClassDef) -> str:
             if k != 'return'
         ]
         m_params = ', '.join(m_params_raw)
+
+        if m_params and len(m_params) > 20:  # noqa: PLR2004
+            indent = '\\l&nbsp;&nbsp;&nbsp;&nbsp;'
+            m_params = indent + m_params.replace(', ', f',{indent}') + '\\l'
+
         methods_raw.append(f'{m_visibility} {m_name}({m_params}): {m_type}')
 
     methods = '\\l'.join(methods_raw) + '\\l'
