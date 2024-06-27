@@ -31,13 +31,49 @@ class ClassDef:
     )
 
 
+def get_full_class_path(cls: Type[Any], root_path: Path) -> str:
+    """
+    Get the full package path for a given class, including parent packages.
+
+    Parameters
+    ----------
+    cls : Type[Any]
+        The class to inspect.
+    root_path : Path
+        The root path of the project to determine the full package path.
+
+    Returns
+    -------
+    str
+        The full package path of the class.
+    """
+    module = cls.__module__
+    module_file = importlib.import_module(module).__file__
+
+    if module_file is None:
+        raise ValueError(f'The module file {module} is invalid.')
+
+    root_path_str = str(root_path)
+
+    if not module_file.startswith(root_path_str):
+        raise ValueError(
+            f'The module file {module_file} is not within the '
+            f'root path {root_path}'
+        )
+
+    relative_path = os.path.relpath(module_file, root_path_str)
+    package_path = os.path.splitext(relative_path)[0].replace(os.sep, '.')
+
+    return f'{package_path}.{cls.__qualname__}'
+
+
 def _get_fullname(entity: Type[Any]) -> str:
     """
     Get the fully qualified name of a given entity.
 
     Parameters
     ----------
-    entity : types.ModuleType
+    entity : Type[Any]
         The entity for which the full name is required.
 
     Returns
@@ -45,12 +81,13 @@ def _get_fullname(entity: Type[Any]) -> str:
     str
         Fully qualified name of the entity.
     """
-    if hasattr(entity, '__module__'):
-        return f'{entity.__module__}.{entity.__name__}'
-    elif hasattr(entity, '__name__'):
-        return entity.__name__
+    module = getattr(entity, '__module__', '')
+    qualname = getattr(entity, '__qualname__', str(entity))
 
-    return str(entity)
+    if module:
+        return module + '.' + qualname
+
+    return qualname
 
 
 def _get_method_annotation(method: types.FunctionType) -> dict[str, str]:
@@ -99,9 +136,9 @@ def _get_dataclass_structure(
 
 def _get_base_classes(klass: Type[Any]) -> list[Type[Any]]:
     return [
-        c
-        for c in klass.__mro__
-        if c.__name__ not in ('object', klass.__name__)
+        base_class
+        for base_class in getattr(klass, '__bases__', [])
+        if base_class.__name__ != 'object'
     ]
 
 
@@ -160,9 +197,8 @@ def _get_classic_class_structure(klass: Type[Any]) -> ClassDef:
         value = klass_anno.get(k, 'UNKNOWN')
         fields[k] = getattr(value, '__value__', str(value))
 
-    if not fields:
-        # Extract attributes from the `__init__` method if defined there.
-        fields = _get_init_attributes(klass)
+    # Extract attributes from the `__init__` method if defined there.
+    fields.update(_get_init_attributes(klass))
 
     return ClassDef(
         fields=fields,
@@ -170,9 +206,7 @@ def _get_classic_class_structure(klass: Type[Any]) -> ClassDef:
     )
 
 
-def _get_class_structure(
-    klass: Type[Any],
-) -> ClassDef:
+def _get_class_structure(klass: Type[Any], root_path: Path) -> ClassDef:
     if dataclasses.is_dataclass(klass):
         class_struct = _get_dataclass_structure(klass)
     elif inspect.isclass(klass):
@@ -181,7 +215,7 @@ def _get_class_structure(
         raise Exception('The given class is not actually a class.')
 
     class_struct.module = klass.__module__
-    class_struct.name = _get_fullname(klass)
+    class_struct.name = get_full_class_path(klass, root_path)
 
     class_struct.bases = []
     for ref_class in _get_base_classes(klass):
@@ -356,9 +390,12 @@ def load_classes_definition(
         module_files.append(path_str)
 
     for file_path in module_files:
+        if verbose:
+            print(file_path)
+
         classes_list.extend(_get_classes_from_module(file_path))
 
-    return [_get_class_structure(cls) for cls in classes_list]
+    return [_get_class_structure(cls, source) for cls in classes_list]
 
 
 def dict_to_classdef(classes_list: list[dict[str, Any]]) -> list[ClassDef]:

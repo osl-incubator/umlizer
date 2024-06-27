@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 from user import User, Address
-from product import Product
+from offering import Product
 
 
 class Order:
