@@ -1,43 +1,19 @@
 """Main module template with example functions."""
 from __future__ import annotations
 
-import os
-
 from pathlib import Path
 
 import typer
+import yaml
 
 from typer import Context, Option
 from typing_extensions import Annotated
 
-from umlizer import __version__, class_graph
+from umlizer import __version__, class_graph, inspector
+from umlizer.inspector import dict_to_classdef
+from umlizer.utils import dot2svg, make_absolute
 
 app = typer.Typer()
-
-
-def make_absolute(relative_path: Path) -> Path:
-    """
-    Convert a relative Path to absolute, relative to the current cwd.
-
-    Parameters
-    ----------
-    relative_path : Path
-        The path to be converted to absolute.
-
-    Returns
-    -------
-    Path
-        The absolute path.
-    """
-    # Get current working directory
-    current_directory = Path(os.getcwd())
-
-    # Return absolute path
-    return (
-        current_directory / relative_path
-        if not relative_path.is_absolute()
-        else relative_path
-    )
 
 
 @app.callback(invoke_without_command=True)
@@ -75,17 +51,55 @@ def class_(
             ..., help='Target path where the UML graph will be generated.'
         ),
     ] = Path('/tmp/'),
+    exclude: Annotated[
+        str,
+        typer.Option(
+            help=(
+                'Exclude directories, modules, or classes '
+                '(eg. "migrations/*,scripts/*").'
+            )
+        ),
+    ] = '',
+    django_settings: Annotated[
+        str,
+        typer.Option(
+            help='Django settings module (eg. "config.settings.dev").'
+        ),
+    ] = '',
     verbose: Annotated[
         bool, typer.Option(help='Active the verbose mode.')
+    ] = False,
+    from_yaml: Annotated[
+        bool, typer.Option(help='Create the class diagram from a yaml file.')
     ] = False,
 ) -> None:
     """Run the command for class graph."""
     source = make_absolute(source)
     target = make_absolute(target) / 'class_graph'
 
-    g = class_graph.create_class_diagram_from_source(source, verbose=verbose)
+    if django_settings:
+        from umlizer.plugins import django
+
+        django.setup(django_settings)
+
+    if not from_yaml:
+        classes_nodes = inspector.load_classes_definition(
+            source, exclude=exclude, verbose=verbose
+        )
+        classes_metadata = [c.__dict__ for c in classes_nodes]
+        with open(f'{target}.yaml', 'w') as f:
+            yaml.dump(classes_metadata, f, indent=2, sort_keys=False)
+    else:
+        with open(source, 'r') as f:
+            classes_metadata = yaml.safe_load(f)
+
+    classes_nodes = dict_to_classdef(classes_metadata)
+
+    g = class_graph.create_diagram(classes_nodes, verbose=verbose)
     g.format = 'png'
     g.render(target)
+
+    dot2svg(target)
 
 
 if __name__ == '__main__':

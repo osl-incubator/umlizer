@@ -23,6 +23,7 @@ graphviz = ">=0.20.1"
 atpublic = ">=4.0"
 typing-extensions = { version = ">=4", python = "<3.9" }
 typer = ">=0.9.0"
+pyyaml = ">=5.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7.3.2"
@@ -60,6 +61,7 @@ testpaths = [
 [tool.bandit]
 exclude_dirs = ["tests"]
 targets = "./"
+skips = ["B602"]
 
 [tool.vulture]
 exclude = ["tests"]
@@ -75,7 +77,7 @@ verbose = false
 line-length = 79
 force-exclude = true
 src = ["./"]
-ignore = ["PLR0913"]
+ignore = ["PLR0913", "RUF008"]
 exclude = [
   'docs',
 ]
@@ -108,3 +110,10 @@ ignore_missing_imports = true
 warn_unused_ignores = true
 warn_redundant_casts = true
 warn_unused_configs = true
+
+
+[[tool.mypy.overrides]]
+module = [
+  "yaml",
+]
+ignore_missing_imports = true
